@@ -7,15 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-      // Add immediate debugging to see if HTML loads
-      console.log("HTML is loading, document ready state:", document.readyState);
-      window.addEventListener('DOMContentLoaded', () => {
-        console.log("DOM content loaded");
-        const root = document.getElementById('root');
-        console.log("Root element at DOMContentLoaded:", root);
-      });
-    </script>
   </head>
   <body>
     <noscript>
@@ -25,40 +16,8 @@
       </div>
     </noscript>
     
-    <div id="root">
-      <div style="padding: 20px; color: #666; text-align: center;">
-        <h2>Loading Link Automator...</h2>
-        <p>If this message persists, please check the browser console for errors.</p>
-      </div>
-    </div>
+    <div id="root"></div>
     
-    <script>
-      // Test if main script loads
-      console.log("About to load main.tsx module...");
-      window.addEventListener('error', function(e) {
-        console.error('Global error caught:', e.error, e.filename, e.lineno);
-      });
-    </script>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Check if main.tsx loaded after a delay
-      setTimeout(() => {
-        console.log("Checking if React mounted after 2 seconds...");
-        const root = document.getElementById('root');
-        if (root && root.innerHTML.includes('Loading Link Automator')) {
-          console.error("❌ React failed to mount - still showing fallback content");
-          root.innerHTML = `
-            <div style="padding: 20px; background: orange; color: black;">
-              <h1>⚠️ DEBUGGING: React Mount Failed</h1>
-              <p>Main.tsx module did not execute properly</p>
-              <p>Check browser console for module loading errors</p>
-              <p>Current URL: ${window.location.href}</p>
-            </div>
-          `;
-        } else {
-          console.log("✅ React appears to have mounted successfully");
-        }
-      }, 2000);
-    </script>
   </body>
 </html>

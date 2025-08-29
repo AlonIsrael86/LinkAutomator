@@ -34,13 +34,13 @@ function Router() {
 }
 
 function App() {
-  console.log("App component rendering...");
   return (
-    <div style={{ padding: '20px', backgroundColor: 'white', minHeight: '100vh', color: 'black' }}>
-      <h1>✅ React App Loaded Successfully!</h1>
-      <p>Hebrew Labels Test: קישור יעד, לקוח, קישור מקוצר</p>
-      <p>App is working - React mounted properly!</p>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 
