@@ -21,7 +21,7 @@ export default function QuickCreateForm() {
       targetUrl: "",
       title: "",
       customSlug: "",
-      domain: window.location.hostname,
+      domain: typeof window !== 'undefined' ? window.location.hostname : '',
       isActive: true,
       enableWebhook: false,
       enableConditionals: false,
@@ -32,7 +32,31 @@ export default function QuickCreateForm() {
 
   const createLinkMutation = useMutation({
     mutationFn: async (data: InsertLink) => {
-      const response = await apiRequest("POST", "/api/links", data);
+      console.log("Quick create form data:", data);
+      
+      const response = await fetch("/api/links", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      console.log("Quick create response status:", response.status);
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.log("Quick create error:", errorData);
+        
+        let errorMessage = "Failed to create link";
+        try {
+          const parsed = JSON.parse(errorData);
+          errorMessage = parsed.message || errorMessage;
+        } catch {
+          errorMessage = errorData || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
       return response.json();
     },
     onSuccess: () => {
@@ -45,6 +69,7 @@ export default function QuickCreateForm() {
       form.reset();
     },
     onError: (error: any) => {
+      console.error("Quick create error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to create link",
