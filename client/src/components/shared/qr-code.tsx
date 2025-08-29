@@ -121,19 +121,27 @@ export default function QRCode({ value, size = 80, className = "" }: QRCodeProps
 
   return (
     <div className={`inline-block ${className}`}>
-      <div className="relative group">
+      <div className="relative group cursor-pointer">
         <canvas
           ref={canvasRef}
-          className="border border-border rounded"
+          className="border border-border rounded transition-opacity group-hover:opacity-75"
           data-testid="qr-code"
-          title={`QR Code for ${value}`}
+          title={`QR Code for ${value} - Hover to customize`}
+          width={size}
+          height={size}
         />
         
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded flex items-center justify-center">
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/60 rounded flex items-center justify-center">
           <Dialog open={isCustomizing} onOpenChange={setIsCustomizing}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-white hover:text-white">
-                <Settings className="h-4 w-4" />
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="text-white bg-blue-600 hover:bg-blue-700 border-white/20"
+                data-testid="qr-customize-button"
+              >
+                <Settings className="h-4 w-4 mr-1" />
+                Customize
               </Button>
             </DialogTrigger>
             

@@ -96,6 +96,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
           
           console.log("Webhook payload:", JSON.stringify(webhookPayload, null, 2));
+          console.log(`🚀 Webhook URL being called: ${link.webhookUrl}`);
+          console.log(`📦 Payload includes creator.ipAddress: ${webhookPayload.creator.ipAddress}`);
           
           const webhookResponse = await axios.post(link.webhookUrl, webhookPayload, {
             timeout: 10000, // 10 seconds timeout
