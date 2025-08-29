@@ -1,10 +1,18 @@
-console.log("main.tsx is loading...");
+// Test if ANY JavaScript runs
+console.log("=== MAIN.TSX IS LOADING ===");
+document.body.innerHTML = '<div style="padding: 20px; background: yellow; color: black; font-size: 20px;">JavaScript is running! Module loaded successfully.</div>';
 
+console.log("About to import React...");
 import { createRoot } from "react-dom/client";
-import App from "./App";
-import "./index.css";
+console.log("React imported!");
 
-console.log("App component imported successfully");
+console.log("About to import App...");  
+import App from "./App";
+console.log("App imported!");
+
+console.log("About to import CSS...");
+import "./index.css";
+console.log("CSS imported!");
 
 try {
   const rootElement = document.getElementById("root");
