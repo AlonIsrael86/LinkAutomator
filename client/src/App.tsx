@@ -34,14 +34,28 @@ function Router() {
 }
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
+  try {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <div style={{ padding: '20px', backgroundColor: 'white', minHeight: '100vh' }}>
+            <h1 style={{ color: 'black', fontSize: '24px', marginBottom: '20px' }}>Link Automator</h1>
+            <div style={{ color: 'black', marginBottom: '10px' }}>App is loading...</div>
+            <Toaster />
+            <Router />
+          </div>
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  } catch (error) {
+    console.error('App render error:', error);
+    return (
+      <div style={{ padding: '20px', color: 'red', backgroundColor: 'white', minHeight: '100vh' }}>
+        <h1>Error Loading App</h1>
+        <pre>{error?.toString()}</pre>
+      </div>
+    );
+  }
 }
 
 export default App;
