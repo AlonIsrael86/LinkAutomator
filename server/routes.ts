@@ -98,14 +98,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/links", async (req, res) => {
     try {
+      console.log("API received data:", JSON.stringify(req.body, null, 2));
       const validatedData = insertLinkSchema.parse(req.body);
+      console.log("Validation passed, creating link...");
       const link = await storage.createLink(validatedData);
+      console.log("Link created successfully:", link.shortCode);
       res.status(201).json(link);
     } catch (error: any) {
       console.error('Create link error:', error);
+      console.error('Error type:', typeof error);
+      console.error('Error message:', error.message);
+      
       if (error.message === "Custom slug is already taken") {
         return res.status(400).json({ message: error.message });
       }
+      
+      // Check if it's a Zod validation error
+      if (error.name === 'ZodError') {
+        console.error('Zod validation errors:', error.issues);
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.issues 
+        });
+      }
+      
       res.status(400).json({ message: "Invalid link data" });
     }
   });
