@@ -34,11 +34,8 @@ export default function QuickCreateForm() {
     mutationFn: async (data: InsertLink) => {
       console.log("Quick create form data:", data);
       
-      // Use correct API base URL for development
-      const apiBaseUrl = (typeof window !== 'undefined' && window.location.hostname !== 'localhost') 
-        ? 'http://localhost:5000' 
-        : '';
-      const apiUrl = `${apiBaseUrl}/api/links`;
+      // For Replit: always use relative URLs since frontend and backend are served from the same server
+      const apiUrl = '/api/links';
       
       console.log("Making request to:", apiUrl);
       
