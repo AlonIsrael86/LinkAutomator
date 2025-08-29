@@ -103,6 +103,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Validation passed, creating link...");
       const link = await storage.createLink(validatedData);
       console.log("Link created successfully:", link.shortCode);
+
+      // Send webhook notification for link creation
+      if (link.enableWebhook && link.webhookUrl) {
+        try {
+          console.log(`Sending webhook to: ${link.webhookUrl}`);
+          const webhookPayload = {
+            event: 'link_created',
+            link: {
+              id: link.id,
+              shortCode: link.shortCode,
+              title: link.title,
+              targetUrl: link.targetUrl,
+              domain: link.domain,
+              createdAt: link.createdAt
+            },
+            timestamp: new Date().toISOString()
+          };
+          
+          console.log("Webhook payload:", JSON.stringify(webhookPayload, null, 2));
+          
+          const webhookResponse = await axios.post(link.webhookUrl, webhookPayload, {
+            timeout: 10000, // 10 seconds timeout
+            headers: {
+              'Content-Type': 'application/json',
+              'User-Agent': 'Link-Automator-Webhook/1.0'
+            }
+          });
+          
+          console.log(`Webhook delivered successfully. Status: ${webhookResponse.status}`);
+        } catch (webhookError: any) {
+          console.error('⚠️ Webhook delivery failed:', {
+            url: link.webhookUrl,
+            error: webhookError.message,
+            response: webhookError.response?.data,
+            status: webhookError.response?.status
+          });
+          // Don't fail the link creation if webhook fails
+        }
+      }
+
       res.status(201).json(link);
     } catch (error: any) {
       console.error('Create link error:', error);

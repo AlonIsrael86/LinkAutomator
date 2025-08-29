@@ -4,16 +4,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 // Removed unused imports
 // Simplified without complex form validation
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { type CustomDomain } from "@shared/schema";
 
 export default function CreateLink() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [currentDomain, setCurrentDomain] = useState("yourdomain.com");
+
+  // Fetch available domains
+  const { data: customDomains = [] } = useQuery<CustomDomain[]>({
+    queryKey: ["/api/domains"]
+  });
+  
+  const availableDomains = [
+    { domain: window.location.hostname, isDefault: true },
+    ...customDomains.map(d => ({ domain: d.domain, isDefault: false }))
+  ];
 
   // Get current domain on client side
   useEffect(() => {
@@ -146,10 +159,26 @@ export default function CreateLink() {
                 </div>
 
                 <div>
+                  <label htmlFor="domain" className="text-sm font-medium">דומיין</label>
+                  <Select value={formData.domain} onValueChange={(value) => setFormData({...formData, domain: value})}>
+                    <SelectTrigger className="mt-1" data-testid="select-domain">
+                      <SelectValue placeholder="בחר דומיין" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableDomains.map((domainOption, index) => (
+                        <SelectItem key={index} value={domainOption.domain}>
+                          {domainOption.domain} {domainOption.isDefault && "(ברירת מחדל)"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
                   <label htmlFor="customSlug" className="text-sm font-medium">Custom Back-half (Optional)</label>
                   <div className="flex mt-1">
                     <span className="inline-flex items-center px-3 py-2 border border-r-0 border-input bg-muted text-muted-foreground text-sm rounded-l-md">
-{currentDomain}/
+{formData.domain}/
                     </span>
                     <Input 
                       id="customSlug"

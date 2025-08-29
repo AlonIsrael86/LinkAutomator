@@ -5,15 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertLinkSchema, type InsertLink } from "@shared/schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { insertLinkSchema, type InsertLink, type CustomDomain } from "@shared/schema";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Settings } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function QuickCreateForm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Fetch available domains
+  const { data: customDomains = [] } = useQuery<CustomDomain[]>({
+    queryKey: ["/api/domains"]
+  });
+  
+  const availableDomains = [
+    { domain: window.location.hostname, isDefault: true },
+    ...customDomains.map(d => ({ domain: d.domain, isDefault: false }))
+  ];
 
   const form = useForm<InsertLink>({
     resolver: zodResolver(insertLinkSchema),
@@ -34,14 +45,17 @@ export default function QuickCreateForm() {
     mutationFn: async (data: InsertLink) => {
       console.log("Quick create form data:", data);
       
-      // Clean the data to be compatible with old backend validation
+      // Include webhook data in the request
       const cleanData = {
         targetUrl: data.targetUrl,
         title: data.title,
         customSlug: data.customSlug || undefined, // Remove empty string
         domain: data.domain,
-        isActive: data.isActive
-        // Remove fields that might cause validation issues
+        isActive: data.isActive,
+        enableWebhook: data.enableWebhook || false,
+        webhookUrl: data.enableWebhook ? data.webhookUrl : "",
+        enableConditionals: data.enableConditionals || false,
+        conditionalRules: data.conditionalRules
       };
       
       // Remove undefined fields
@@ -160,6 +174,31 @@ export default function QuickCreateForm() {
               )}
             />
             
+            <FormField
+              control={form.control}
+              name="domain"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>דומיין</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger data-testid="select-domain">
+                        <SelectValue placeholder="בחר דומיין" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableDomains.map((domainOption, index) => (
+                        <SelectItem key={index} value={domainOption.domain}>
+                          {domainOption.domain} {domainOption.isDefault && "(ברירת מחדל)"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -170,7 +209,7 @@ export default function QuickCreateForm() {
                     <FormControl>
                       <div className="flex">
                         <span className="inline-flex items-center px-3 py-2 border border-r-0 border-input bg-muted text-muted-foreground text-sm rounded-l-md">
-                          {window.location.hostname}/
+                          {form.watch("domain") || window.location.hostname}/
                         </span>
                         <Input 
                           placeholder="my-link"
@@ -204,7 +243,7 @@ export default function QuickCreateForm() {
               />
             </div>
 
-            <div className="flex items-center justify-between pt-4">
+            <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <FormField
                   control={form.control}
@@ -243,6 +282,29 @@ export default function QuickCreateForm() {
                   )}
                 />
               </div>
+
+              {form.watch("enableWebhook") && (
+                <FormField
+                  control={form.control}
+                  name="webhookUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Webhook URL</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="https://hook.make.com/..."
+                          data-testid="input-webhook-url"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+            
+            <div className="flex justify-end pt-4">
               <Button 
                 type="submit" 
                 disabled={createLinkMutation.isPending}
