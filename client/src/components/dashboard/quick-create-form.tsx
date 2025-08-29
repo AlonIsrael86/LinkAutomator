@@ -79,6 +79,12 @@ export default function QuickCreateForm() {
   });
 
   const onSubmit = (data: InsertLink) => {
+    // Add debugging
+    console.log("=== QUICK CREATE FORM SUBMISSION ===");
+    console.log("Form data being sent:", JSON.stringify(data, null, 2));
+    console.log("Domain value:", data.domain);
+    console.log("=====================================");
+    
     createLinkMutation.mutate(data);
   };
 
