@@ -42,12 +42,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           console.log(`Sending webhook to: ${link.webhookUrl}`);
           
-          // Extract IP address from request
-          const creatorIP = req.ip || 
-                           req.headers['x-forwarded-for']?.toString().split(',')[0] || 
-                           req.headers['x-real-ip']?.toString() || 
-                           req.connection.remoteAddress || 
-                           'unknown';
+          // Extract IP address from request - Enhanced for production
+          let creatorIP = 'unknown';
+          
+          // Try multiple sources for real client IP
+          if (req.headers['cf-connecting-ip']) {
+            // Cloudflare
+            creatorIP = req.headers['cf-connecting-ip'].toString();
+          } else if (req.headers['x-forwarded-for']) {
+            // Standard proxy header - get first IP
+            const forwardedIps = req.headers['x-forwarded-for'].toString().split(',');
+            creatorIP = forwardedIps[0].trim();
+          } else if (req.headers['x-real-ip']) {
+            // Nginx proxy
+            creatorIP = req.headers['x-real-ip'].toString();
+          } else if (req.headers['x-client-ip']) {
+            // Alternative header
+            creatorIP = req.headers['x-client-ip'].toString();
+          } else if (req.connection.remoteAddress) {
+            // Direct connection
+            creatorIP = req.connection.remoteAddress;
+          } else if (req.socket.remoteAddress) {
+            // Socket connection
+            creatorIP = req.socket.remoteAddress;
+          } else if (req.ip) {
+            // Express.js req.ip
+            creatorIP = req.ip;
+          }
+          
+          // Clean up IPv6 localhost to IPv4
+          if (creatorIP === '::1') {
+            creatorIP = '127.0.0.1';
+          }
+          
+          console.log(`Client IP detected: ${creatorIP}`);
           
           const webhookPayload = {
             event: 'link_created',
@@ -384,9 +412,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get the domain from the request host header
       const requestDomain = req.headers.host?.replace(/:\d+$/, '') || '';
+      console.log(`Redirect request - shortCode: ${shortCode}, domain: ${requestDomain}`);
       
       // First try to find link by shortCode and domain
       let link = await storage.getLinkByShortCodeAndDomain(shortCode, requestDomain);
+      console.log(`Link found by domain+shortCode: ${link ? 'YES' : 'NO'}`);
       
       // If not found, fallback to just shortCode (for backward compatibility)
       if (!link) {

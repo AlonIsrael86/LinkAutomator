@@ -3,6 +3,8 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+// Trust proxy for accurate IP address detection in production
+app.set('trust proxy', true);
 // Add request body logging
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/links') && req.method === 'POST') {
