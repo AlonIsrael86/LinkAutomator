@@ -94,6 +94,12 @@ export const insertLinkSchema = createInsertSchema(links).omit({
   targetUrl: z.string().url("Invalid URL format"),
   title: z.string().min(1, "Title is required"),
   customSlug: z.string().optional(),
+  domain: z.string().optional(),
+  isActive: z.boolean().optional().default(true),
+  enableWebhook: z.boolean().optional().default(false),
+  enableConditionals: z.boolean().optional().default(false),
+  webhookUrl: z.string().optional(),
+  conditionalRules: z.any().optional(),
 });
 
 export const insertClickSchema = createInsertSchema(clicks).omit({

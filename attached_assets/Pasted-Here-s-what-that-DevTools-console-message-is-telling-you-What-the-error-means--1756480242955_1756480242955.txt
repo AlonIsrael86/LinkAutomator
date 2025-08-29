@@ -1,0 +1,79 @@
+Here’s what that DevTools console message is telling you:
+
+---
+
+## 🔍 What the error means
+- **`POST .../api/links`** → Your browser sent a POST request to the `/api/links` endpoint of your app.
+- **`400 (Bad Request)`** → The server received the request but rejected it because the data sent didn’t meet its requirements.
+- From the page content, the server’s JSON response is:
+  ```json
+  { "message": "Invalid link data" }
+  ```
+  This confirms the backend is validating the request body and found something wrong with it.
+
+---
+
+## 💡 Common causes in this case
+Given this is a **Link Automator** “Create Link” form, a 400 here usually means:
+
+1. **Missing required fields**  
+   - The API likely needs:
+     - `targetUrl` — must be a valid URL starting with `http://` or `https://`
+     - `title` — non‑empty string
+   - If either is missing or empty, you’ll get a 400.
+
+2. **Invalid format**  
+   - `targetUrl` not matching URL validation rules (e.g., missing protocol, spaces, typos).
+   - Custom back‑half contains invalid characters or conflicts with an existing link.
+
+3. **Frontend sending wrong JSON structure**  
+   - If the JavaScript code sends `{ url: ... }` instead of `{ targetUrl: ... }`, the backend won’t recognize it.
+
+---
+
+## 🛠 How to fix it
+
+### 1. Check what’s being sent
+- In DevTools → **Network** tab → click the failed POST request → **Payload**.
+- Compare the payload to what the API expects (likely something like):
+  ```json
+  {
+    "targetUrl": "https://google.com",
+    "title": "Test Link",
+    "backHalf": "test"
+  }
+  ```
+- Make sure property names and values match exactly.
+
+### 2. Fix the input
+- Ensure **Target URL** is a complete, valid URL with protocol.
+- Provide a **Link Title**.
+- If using a custom back‑half, stick to letters, numbers, and hyphens — no spaces or special characters.
+
+### 3. Adjust the frontend code (if you control it)
+- Update the `fetch`/`axios` call to send the correct keys and values.
+- Example:
+  ```javascript
+  fetch('/api/links', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      targetUrl: 'https://google.com',
+      title: 'Test Link',
+      backHalf: 'test'
+    })
+  });
+  ```
+
+---
+
+✅ **Quick test:**  
+Try creating a link with:
+- Target URL: `https://google.com`
+- Link Title: `Test Link`
+- Leave Custom Back‑half blank  
+If that works, the issue was with your input or payload format.
+
+---
+
+If you’d like, I can walk you through **inspecting the exact payload** your form is sending so we can pinpoint the mismatch instantly — that’s the fastest way to solve this.
