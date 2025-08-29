@@ -81,7 +81,7 @@ export default function CustomDomain() {
   const onSubmit = (data: InsertCustomDomain) => {
     // Generate verification record based on method
     const verificationRecord = data.verificationMethod === "CNAME" 
-      ? "links.yourdomain.com" 
+      ? window.location.hostname 
       : `linkautomator-verification=${Math.random().toString(36).substring(7)}`;
     
     createDomainMutation.mutate({
@@ -135,7 +135,7 @@ export default function CustomDomain() {
                         <FormLabel>Domain Name</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="links.yourdomain.com"
+                            placeholder={window.location.hostname}
                             data-testid="input-domain"
                             {...field} 
                           />
@@ -284,7 +284,7 @@ export default function CustomDomain() {
             <div>
               <h4 className="font-medium">1. Add Domain</h4>
               <p className="text-sm text-muted-foreground">
-                Click "Add Domain" and enter your domain name (e.g., links.yourdomain.com).
+                Click "Add Domain" and enter your domain name (e.g., short.yourcompany.com).
               </p>
             </div>
             

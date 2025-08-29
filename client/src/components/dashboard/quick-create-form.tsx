@@ -21,7 +21,7 @@ export default function QuickCreateForm() {
       targetUrl: "",
       title: "",
       customSlug: "",
-      domain: "links.yourdomain.com",
+      domain: window.location.hostname,
       isActive: true,
       enableWebhook: false,
       enableConditionals: false,
@@ -98,7 +98,7 @@ export default function QuickCreateForm() {
                     <FormControl>
                       <div className="flex">
                         <span className="inline-flex items-center px-3 py-2 border border-r-0 border-input bg-muted text-muted-foreground text-sm rounded-l-md">
-                          links.yourdomain.com/
+                          {window.location.hostname}/
                         </span>
                         <Input 
                           placeholder="my-link"

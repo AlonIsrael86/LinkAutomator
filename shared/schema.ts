@@ -16,7 +16,7 @@ export const links = pgTable("links", {
   targetUrl: text("target_url").notNull(),
   title: text("title").notNull(),
   customSlug: varchar("custom_slug", { length: 255 }),
-  domain: text("domain").default("links.yourdomain.com"),
+  domain: text("domain"),
   isActive: boolean("is_active").default(true),
   webhookUrl: text("webhook_url"),
   enableWebhook: boolean("enable_webhook").default(false),
