@@ -8,23 +8,34 @@ import { Checkbox } from "@/components/ui/checkbox";
 // Simplified without complex form validation
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function CreateLink() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [currentDomain, setCurrentDomain] = useState("yourdomain.com");
+
+  // Get current domain on client side
+  useEffect(() => {
+    setCurrentDomain(window.location.hostname);
+  }, []);
 
   const [formData, setFormData] = useState({
     targetUrl: "",
     title: "",
     customSlug: "",
-    domain: window.location.hostname,
+    domain: currentDomain,
     isActive: true,
     enableWebhook: false,
     enableConditionals: false,
     webhookUrl: "",
     conditionalRules: null
   });
+
+  // Update form data when domain changes
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, domain: currentDomain }));
+  }, [currentDomain]);
 
   // Simple direct form submission without complex validation
   const handleDirectSubmit = async (e: React.FormEvent) => {
@@ -123,7 +134,7 @@ export default function CreateLink() {
                   <label htmlFor="customSlug" className="text-sm font-medium">Custom Back-half (Optional)</label>
                   <div className="flex mt-1">
                     <span className="inline-flex items-center px-3 py-2 border border-r-0 border-input bg-muted text-muted-foreground text-sm rounded-l-md">
-{window.location.hostname}/
+{currentDomain}/
                     </span>
                     <Input 
                       id="customSlug"
