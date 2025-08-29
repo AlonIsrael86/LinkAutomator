@@ -76,7 +76,10 @@ export default function CreateLink() {
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={(e) => {
+                  console.log("Form submit event triggered");
+                  form.handleSubmit(onSubmit)(e);
+                }} className="space-y-6">
                   <FormField
                     control={form.control}
                     name="targetUrl"
@@ -238,6 +241,11 @@ export default function CreateLink() {
                       type="submit" 
                       disabled={createLinkMutation.isPending}
                       data-testid="button-create-link"
+                      onClick={(e) => {
+                        console.log("Button clicked");
+                        console.log("Form errors:", form.formState.errors);
+                        console.log("Form values:", form.getValues());
+                      }}
                     >
                       {createLinkMutation.isPending ? "Creating..." : "Create Link"}
                     </Button>
