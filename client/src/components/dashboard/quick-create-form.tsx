@@ -20,7 +20,7 @@ export default function QuickCreateForm() {
     defaultValues: {
       targetUrl: "",
       title: "",
-      customSlug: "",
+      customSlug: "", // Leave empty for auto-generated short codes
       domain: typeof window !== 'undefined' ? window.location.hostname : '',
       isActive: true,
       enableWebhook: false,
