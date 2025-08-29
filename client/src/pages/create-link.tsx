@@ -47,6 +47,7 @@ export default function CreateLink() {
       setLocation("/my-links");
     },
     onError: (error: any) => {
+      console.error("Create link error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to create link",
@@ -56,6 +57,7 @@ export default function CreateLink() {
   });
 
   const onSubmit = (data: InsertLink) => {
+    console.log("Form submitted with data:", data);
     createLinkMutation.mutate(data);
   };
 
