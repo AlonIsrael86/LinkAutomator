@@ -30,8 +30,10 @@ export default function CreateLink() {
   const handleDirectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Direct form submit triggered");
+    console.log("Current form data:", formData);
     
     if (!formData.targetUrl || !formData.title) {
+      console.log("Validation failed - missing required fields");
       toast({
         title: "Error",
         description: "Please fill in Target URL and Link Title",
@@ -93,7 +95,10 @@ export default function CreateLink() {
                     id="targetUrl"
                     placeholder="https://example.com/very-long-url"
                     value={formData.targetUrl}
-                    onChange={(e) => setFormData({...formData, targetUrl: e.target.value})}
+                    onChange={(e) => {
+                      console.log("Target URL changed:", e.target.value);
+                      setFormData({...formData, targetUrl: e.target.value});
+                    }}
                     className="mt-1"
                     data-testid="input-target-url"
                   />
@@ -105,7 +110,10 @@ export default function CreateLink() {
                     id="title"
                     placeholder="Marketing Campaign Q4"
                     value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    onChange={(e) => {
+                      console.log("Title changed:", e.target.value);
+                      setFormData({...formData, title: e.target.value});
+                    }}
                     className="mt-1"
                     data-testid="input-title"
                   />
