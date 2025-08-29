@@ -18,7 +18,7 @@ export default function CreateLink() {
     targetUrl: "",
     title: "",
     customSlug: "",
-    domain: "links.yourdomain.com",
+    domain: window.location.hostname,
     isActive: true,
     enableWebhook: false,
     enableConditionals: false,
@@ -123,7 +123,7 @@ export default function CreateLink() {
                   <label htmlFor="customSlug" className="text-sm font-medium">Custom Back-half (Optional)</label>
                   <div className="flex mt-1">
                     <span className="inline-flex items-center px-3 py-2 border border-r-0 border-input bg-muted text-muted-foreground text-sm rounded-l-md">
-                      links.yourdomain.com/
+{window.location.hostname}/
                     </span>
                     <Input 
                       id="customSlug"
