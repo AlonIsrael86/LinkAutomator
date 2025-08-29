@@ -79,6 +79,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           const webhookPayload = {
             event: 'link_created',
+            id: link.id,
+            shortCode: link.shortCode,
+            title: link.title,
+            targetUrl: link.targetUrl,
+            domain: link.domain,
+            createdAt: link.createdAt,
+            timestamp: new Date().toISOString(),
+            // Creator information at root level for Make.com compatibility
+            ipAddress: creatorIP,
+            userAgent: req.headers['user-agent'] || '',
+            creatorTimestamp: new Date().toISOString(),
+            // Also keep nested structure for other webhook consumers
             link: {
               id: link.id,
               shortCode: link.shortCode,
@@ -91,8 +103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               ipAddress: creatorIP,
               userAgent: req.headers['user-agent'] || '',
               timestamp: new Date().toISOString()
-            },
-            timestamp: new Date().toISOString()
+            }
           };
           
           console.log("Webhook payload:", JSON.stringify(webhookPayload, null, 2));

@@ -120,27 +120,28 @@ export default function QRCode({ value, size = 80, className = "" }: QRCodeProps
   };
 
   return (
-    <div className={`inline-block ${className}`}>
-      <div className="relative group cursor-pointer">
+    <div className={`inline-block relative ${className}`}>
+      <div className="group cursor-pointer">
         <canvas
           ref={canvasRef}
-          className="border border-border rounded transition-opacity group-hover:opacity-75"
+          className="border border-border rounded transition-opacity group-hover:opacity-60"
           data-testid="qr-code"
-          title={`QR Code for ${value} - Hover to customize`}
+          title={`QR Code for ${value} - Click to customize`}
           width={size}
           height={size}
         />
         
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/60 rounded flex items-center justify-center">
+        {/* Hover overlay with customize button */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/70 rounded flex items-center justify-center z-10">
           <Dialog open={isCustomizing} onOpenChange={setIsCustomizing}>
             <DialogTrigger asChild>
               <Button 
-                variant="secondary" 
+                variant="default" 
                 size="sm" 
-                className="text-white bg-blue-600 hover:bg-blue-700 border-white/20"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1 shadow-lg"
                 data-testid="qr-customize-button"
               >
-                <Settings className="h-4 w-4 mr-1" />
+                <Settings className="h-3 w-3 mr-1" />
                 Customize
               </Button>
             </DialogTrigger>
