@@ -35,15 +35,12 @@ function Router() {
 
 function App() {
   try {
+    console.log("App component rendering...");
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <div style={{ padding: '20px', backgroundColor: 'white', minHeight: '100vh' }}>
-            <h1 style={{ color: 'black', fontSize: '24px', marginBottom: '20px' }}>Link Automator</h1>
-            <div style={{ color: 'black', marginBottom: '10px' }}>App is loading...</div>
-            <Toaster />
-            <Router />
-          </div>
+          <Toaster />
+          <Router />
         </TooltipProvider>
       </QueryClientProvider>
     );

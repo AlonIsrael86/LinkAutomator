@@ -4,23 +4,18 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// Wait for DOM to be ready
+console.log("All imports successful");
+
 function initializeApp() {
   console.log("Initializing app...");
-  console.log("Document ready state:", document.readyState);
-  console.log("Document body:", document.body);
-  console.log("All elements in body:", document.body?.children);
-  
   const rootElement = document.getElementById("root");
-  console.log("Looking for root element:", rootElement);
+  console.log("Root element found:", !!rootElement);
   
   if (!rootElement) {
-    console.error("Root element not found! Creating one...");
-    // Create root element if missing
+    console.error("Root element missing, creating one...");
     const newRoot = document.createElement("div");
     newRoot.id = "root";
     document.body.appendChild(newRoot);
-    console.log("Created new root element");
     return newRoot;
   }
   

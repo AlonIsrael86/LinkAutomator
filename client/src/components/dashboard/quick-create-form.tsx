@@ -34,30 +34,44 @@ export default function QuickCreateForm() {
     mutationFn: async (data: InsertLink) => {
       console.log("Quick create form data:", data);
       
-      // For Replit: always use relative URLs since frontend and backend are served from the same server
-      const apiUrl = '/api/links';
+      // Force development API URL to ensure we hit our working backend
+      const isDevelopment = window.location.hostname.includes('janeway') || window.location.hostname === 'localhost';
+      const apiUrl = isDevelopment ? '/api/links' : '/api/links';
       
       console.log("Making request to:", apiUrl);
+      console.log("Current hostname:", window.location.hostname);
+      console.log("Request data:", JSON.stringify(data, null, 2));
       
       const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest" // Help identify frontend requests
+        },
         body: JSON.stringify(data)
       });
 
       console.log("Quick create response status:", response.status);
+      console.log("Response headers:", Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.log("Quick create error:", errorData);
+        console.log("Quick create error response:", errorData);
         
-        let errorMessage = "Failed to create link";
+        // Enhanced error reporting
+        let errorMessage = `API Error (${response.status}): `;
         try {
           const parsed = JSON.parse(errorData);
-          errorMessage = parsed.message || errorMessage;
+          errorMessage += parsed.message || "Unknown error";
+          console.log("Parsed error details:", parsed);
         } catch {
-          errorMessage = errorData || errorMessage;
+          errorMessage += errorData || "Failed to create link";
+          console.log("Raw error text:", errorData);
         }
+        
+        // Add debugging info about which backend was hit
+        console.log("Error occurred on domain:", window.location.hostname);
+        console.log("Full URL that failed:", window.location.origin + apiUrl);
         
         throw new Error(errorMessage);
       }
