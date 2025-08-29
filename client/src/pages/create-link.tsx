@@ -60,8 +60,22 @@ export default function CreateLink() {
         body: JSON.stringify(formData)
       });
 
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
+        const errorData = await response.text();
+        console.log("Error response body:", errorData);
+        
+        let errorMessage = "Failed to create link";
+        try {
+          const parsed = JSON.parse(errorData);
+          errorMessage = parsed.message || errorMessage;
+        } catch {
+          errorMessage = errorData || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const newLink = await response.json();
@@ -75,6 +89,7 @@ export default function CreateLink() {
       setLocation("/my-links");
     } catch (error: any) {
       console.error("Create link error:", error);
+      console.error("Error details:", error.message, error.stack);
       toast({
         title: "Error", 
         description: error.message || "Failed to create link",
