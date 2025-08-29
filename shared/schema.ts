@@ -87,6 +87,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export const insertLinkSchema = createInsertSchema(links).omit({
   id: true,
+  shortCode: true, // Generated automatically by backend
   createdAt: true,
   updatedAt: true,
 }).extend({
