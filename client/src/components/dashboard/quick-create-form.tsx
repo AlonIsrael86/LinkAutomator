@@ -34,21 +34,36 @@ export default function QuickCreateForm() {
     mutationFn: async (data: InsertLink) => {
       console.log("Quick create form data:", data);
       
-      // Force development API URL to ensure we hit our working backend
-      const isDevelopment = window.location.hostname.includes('janeway') || window.location.hostname === 'localhost';
-      const apiUrl = isDevelopment ? '/api/links' : '/api/links';
+      // Clean the data to be compatible with old backend validation
+      const cleanData = {
+        targetUrl: data.targetUrl,
+        title: data.title,
+        customSlug: data.customSlug || undefined, // Remove empty string
+        domain: data.domain,
+        isActive: data.isActive
+        // Remove fields that might cause validation issues
+      };
+      
+      // Remove undefined fields
+      Object.keys(cleanData).forEach(key => {
+        if (cleanData[key] === undefined || cleanData[key] === '') {
+          delete cleanData[key];
+        }
+      });
+      
+      const apiUrl = '/api/links';
       
       console.log("Making request to:", apiUrl);
       console.log("Current hostname:", window.location.hostname);
-      console.log("Request data:", JSON.stringify(data, null, 2));
+      console.log("Cleaned request data:", JSON.stringify(cleanData, null, 2));
       
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest" // Help identify frontend requests
+          "X-Requested-With": "XMLHttpRequest"
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(cleanData)
       });
 
       console.log("Quick create response status:", response.status);
@@ -125,7 +140,7 @@ export default function QuickCreateForm() {
               name="targetUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Target URL</FormLabel>
+                  <FormLabel>קישור יעד</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="https://example.com/very-long-url"
@@ -144,7 +159,7 @@ export default function QuickCreateForm() {
                 name="customSlug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Custom Back-half (Optional)</FormLabel>
+                    <FormLabel>קישור מקוצר מותאם (אופציונלי)</FormLabel>
                     <FormControl>
                       <div className="flex">
                         <span className="inline-flex items-center px-3 py-2 border border-r-0 border-input bg-muted text-muted-foreground text-sm rounded-l-md">
@@ -168,10 +183,10 @@ export default function QuickCreateForm() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Link Title</FormLabel>
+                    <FormLabel>לקוח</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="Marketing Campaign Q4"
+                        placeholder="שם הלקוח או כותרת הקישור"
                         data-testid="input-title"
                         {...field} 
                       />
@@ -197,7 +212,7 @@ export default function QuickCreateForm() {
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm">Enable Webhook</FormLabel>
+                        <FormLabel className="text-sm">אפשר Webhook</FormLabel>
                       </div>
                     </FormItem>
                   )}
@@ -215,7 +230,7 @@ export default function QuickCreateForm() {
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm">Conditional Redirects</FormLabel>
+                        <FormLabel className="text-sm">הפניות מותנות</FormLabel>
                       </div>
                     </FormItem>
                   )}
@@ -226,7 +241,7 @@ export default function QuickCreateForm() {
                 disabled={createLinkMutation.isPending}
                 data-testid="button-create-link"
               >
-                {createLinkMutation.isPending ? "Creating..." : "Create Link"}
+                {createLinkMutation.isPending ? "יוצר..." : "צור קישור"}
               </Button>
             </div>
           </form>
