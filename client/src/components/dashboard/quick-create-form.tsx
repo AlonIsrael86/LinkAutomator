@@ -45,9 +45,9 @@ export default function QuickCreateForm() {
       };
       
       // Remove undefined fields
-      Object.keys(cleanData).forEach(key => {
-        if (cleanData[key] === undefined || cleanData[key] === '') {
-          delete cleanData[key];
+      Object.entries(cleanData).forEach(([key, value]) => {
+        if (value === undefined || value === '') {
+          delete (cleanData as any)[key];
         }
       });
       
@@ -73,30 +73,37 @@ export default function QuickCreateForm() {
         const errorData = await response.text();
         console.log("Quick create error response:", errorData);
         
-        // Enhanced error reporting
-        let errorMessage = `API Error (${response.status}): `;
+        let userFriendlyMessage = "נכשל ביצירת הקישור"; // Default: Failed to create link
+        
         try {
           const parsed = JSON.parse(errorData);
-          errorMessage += parsed.message || "Unknown error";
+          const backendMessage = parsed.message || "Unknown error";
+          
+          // Handle specific error cases with Hebrew translations
+          if (backendMessage === "Custom slug is already taken") {
+            userFriendlyMessage = "הקישור המקוצר כבר קיים. אנא בחר שם אחר"; // Custom slug already exists. Please choose another name
+          } else if (backendMessage.includes("validation") || backendMessage.includes("Invalid")) {
+            userFriendlyMessage = "הנתונים שהוזנו אינם תקינים. אנא בדוק שהקישור תקין"; // Invalid data entered. Please check that the link is valid
+          } else {
+            // Use the backend message as-is for other errors
+            userFriendlyMessage = backendMessage;
+          }
+          
           console.log("Parsed error details:", parsed);
+          console.log("User-friendly message:", userFriendlyMessage);
         } catch {
-          errorMessage += errorData || "Failed to create link";
           console.log("Raw error text:", errorData);
         }
         
-        // Add debugging info about which backend was hit
-        console.log("Error occurred on domain:", window.location.hostname);
-        console.log("Full URL that failed:", window.location.origin + apiUrl);
-        
-        throw new Error(errorMessage);
+        throw new Error(userFriendlyMessage);
       }
 
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Link created successfully"
+        title: "הצלחה",
+        description: "הקישור נוצר בהצלחה"
       });
       queryClient.invalidateQueries({ queryKey: ["/api/links"] });
       queryClient.invalidateQueries({ queryKey: ["/api/analytics/dashboard"] });
@@ -105,8 +112,8 @@ export default function QuickCreateForm() {
     onError: (error: any) => {
       console.error("Quick create error:", error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to create link",
+        title: "שגיאה",
+        description: error.message || "נכשל ביצירת הקישור",
         variant: "destructive"
       });
     }
