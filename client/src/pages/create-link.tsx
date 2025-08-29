@@ -18,6 +18,12 @@ export default function CreateLink() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
 
+  // Simple test button first
+  const testClick = () => {
+    console.log("TEST BUTTON CLICKED - React event handling works!");
+    alert("Button click works!");
+  };
+
   const form = useForm<InsertLink>({
     resolver: zodResolver(insertLinkSchema),
     defaultValues: {
@@ -70,6 +76,13 @@ export default function CreateLink() {
       
       <div className="p-6">
         <div className="max-w-2xl mx-auto">
+          {/* Test button to check if React events work */}
+          <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 rounded">
+            <p className="text-sm text-yellow-800 mb-2">Debug Test:</p>
+            <Button onClick={testClick} variant="outline">
+              Test Click (Should show alert)
+            </Button>
+          </div>
           <Card>
             <CardHeader>
               <CardTitle data-testid="create-link-title">Link Details</CardTitle>
