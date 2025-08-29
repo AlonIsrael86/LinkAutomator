@@ -116,6 +116,13 @@ export class DatabaseStorage implements IStorage {
     return link || undefined;
   }
 
+  async getLinkByShortCodeAndDomain(shortCode: string, domain: string): Promise<Link | undefined> {
+    const [link] = await db.select().from(links).where(
+      and(eq(links.shortCode, shortCode), eq(links.domain, domain))
+    );
+    return link || undefined;
+  }
+
   async getLinkById(id: string): Promise<Link | undefined> {
     const [link] = await db.select().from(links).where(eq(links.id, id));
     return link || undefined;

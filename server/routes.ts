@@ -6,73 +6,6 @@ import { randomBytes } from "crypto";
 import axios from "axios";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Redirect route - handles short link clicks
-  app.get("/:shortCode", async (req, res) => {
-    try {
-      const { shortCode } = req.params;
-      const link = await storage.getLinkByShortCode(shortCode);
-      
-      if (!link || !link.isActive) {
-        return res.status(404).json({ message: "Link not found" });
-      }
-
-      // Record click analytics
-      const userAgent = req.headers['user-agent'] || '';
-      const referer = req.headers['referer'] || '';
-      const ipAddress = req.ip || req.connection.remoteAddress || '';
-
-      await storage.recordClick({
-        linkId: link.id,
-        ipAddress,
-        userAgent,
-        referer,
-        device: extractDevice(userAgent),
-        browser: extractBrowser(userAgent),
-        os: extractOS(userAgent)
-      });
-
-      // Send webhook if enabled
-      if (link.enableWebhook && link.webhookUrl) {
-        try {
-          await axios.post(link.webhookUrl, {
-            event: 'click',
-            link: {
-              id: link.id,
-              shortCode: link.shortCode,
-              title: link.title,
-              targetUrl: link.targetUrl
-            },
-            click: {
-              ipAddress,
-              userAgent,
-              referer,
-              timestamp: new Date().toISOString()
-            }
-          });
-        } catch (error) {
-          console.error('Webhook error:', error);
-        }
-      }
-
-      // Handle conditional redirects
-      if (link.enableConditionals && link.conditionalRules) {
-        const rules = link.conditionalRules as any;
-        // Simple device-based redirect logic
-        if (rules.mobile && isMobile(userAgent)) {
-          return res.redirect(rules.mobile);
-        }
-        if (rules.desktop && !isMobile(userAgent)) {
-          return res.redirect(rules.desktop);
-        }
-      }
-
-      return res.redirect(link.targetUrl);
-    } catch (error) {
-      console.error('Redirect error:', error);
-      return res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
   // API Routes
   // Links
   app.get("/api/links", async (req, res) => {
@@ -108,6 +41,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (link.enableWebhook && link.webhookUrl) {
         try {
           console.log(`Sending webhook to: ${link.webhookUrl}`);
+          
+          // Extract IP address from request
+          const creatorIP = req.ip || 
+                           req.headers['x-forwarded-for']?.toString().split(',')[0] || 
+                           req.headers['x-real-ip']?.toString() || 
+                           req.connection.remoteAddress || 
+                           'unknown';
+          
           const webhookPayload = {
             event: 'link_created',
             link: {
@@ -117,6 +58,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               targetUrl: link.targetUrl,
               domain: link.domain,
               createdAt: link.createdAt
+            },
+            creator: {
+              ipAddress: creatorIP,
+              userAgent: req.headers['user-agent'] || '',
+              timestamp: new Date().toISOString()
             },
             timestamp: new Date().toISOString()
           };
@@ -409,6 +355,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Delete token error:', error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Redirect route - handles short link clicks (placed LAST so it doesn't interfere with API routes)
+  app.get("/:shortCode", async (req, res) => {
+    try {
+      const { shortCode } = req.params;
+      
+      // Skip certain paths that shouldn't be treated as short codes
+      if (shortCode.startsWith('@') || 
+          shortCode.startsWith('_') || 
+          shortCode.startsWith('src') ||
+          shortCode.startsWith('api') ||
+          shortCode.startsWith('node_modules') ||
+          shortCode.endsWith('.js') ||
+          shortCode.endsWith('.css') ||
+          shortCode.endsWith('.html') ||
+          shortCode.endsWith('.ico') ||
+          shortCode.endsWith('.png') ||
+          shortCode.endsWith('.svg') ||
+          shortCode.endsWith('.jpg') ||
+          shortCode.endsWith('.jpeg') ||
+          shortCode === 'favicon.ico' ||
+          shortCode === 'robots.txt') {
+        return res.status(404).json({ message: "Not found" });
+      }
+      
+      // Get the domain from the request host header
+      const requestDomain = req.headers.host?.replace(/:\d+$/, '') || '';
+      
+      // First try to find link by shortCode and domain
+      let link = await storage.getLinkByShortCodeAndDomain(shortCode, requestDomain);
+      
+      // If not found, fallback to just shortCode (for backward compatibility)
+      if (!link) {
+        link = await storage.getLinkByShortCode(shortCode);
+      }
+      
+      if (!link || !link.isActive) {
+        return res.status(404).json({ message: "Link not found" });
+      }
+
+      // Record click analytics
+      const userAgent = req.headers['user-agent'] || '';
+      const referer = req.headers['referer'] || '';
+      const ipAddress = req.ip || req.connection.remoteAddress || '';
+
+      await storage.recordClick({
+        linkId: link.id,
+        ipAddress,
+        userAgent,
+        referer,
+        device: extractDevice(userAgent),
+        browser: extractBrowser(userAgent),
+        os: extractOS(userAgent)
+      });
+
+      // Send webhook if enabled
+      if (link.enableWebhook && link.webhookUrl) {
+        try {
+          await axios.post(link.webhookUrl, {
+            event: 'click',
+            link: {
+              id: link.id,
+              shortCode: link.shortCode,
+              title: link.title,
+              targetUrl: link.targetUrl
+            },
+            click: {
+              ipAddress,
+              userAgent,
+              referer,
+              timestamp: new Date().toISOString()
+            }
+          });
+        } catch (error) {
+          console.error('Webhook error:', error);
+        }
+      }
+
+      // Handle conditional redirects
+      if (link.enableConditionals && link.conditionalRules) {
+        const rules = link.conditionalRules as any;
+        // Simple device-based redirect logic
+        if (rules.mobile && isMobile(userAgent)) {
+          return res.redirect(rules.mobile);
+        }
+        if (rules.desktop && !isMobile(userAgent)) {
+          return res.redirect(rules.desktop);
+        }
+      }
+
+      return res.redirect(link.targetUrl);
+    } catch (error) {
+      console.error('Redirect error:', error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   });
 
