@@ -12,13 +12,30 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  // Ensure API requests go to correct base URL
+  const baseUrl = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
+    ? 'http://localhost:5000' 
+    : '';
+  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  
+  console.log(`Making ${method} request to: ${fullUrl}`);
+  if (data) {
+    console.log('Request data:', JSON.stringify(data, null, 2));
+  }
+  
+  const res = await fetch(fullUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
 
+  console.log(`Response status: ${res.status}`);
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.log('Response error:', errorText);
+  }
+  
   await throwIfResNotOk(res);
   return res;
 }

@@ -1,0 +1,61 @@
+=== QUICK CREATE FORM SUBMISSION ===
+index-9XxxLFgJ.js:188 Form data being sent: {
+  "targetUrl": "https://google.com",
+  "title": "Test Link fsdfdsf",
+  "customSlug": "my-test-link",
+  "domain": "b18c3636-14af-48b4-b343-be1590d27b79.janeway.prod.repl.run",
+  "isActive": true,
+  "webhookUrl": "",
+  "enableWebhook": false,
+  "conditionalRules": null,
+  "enableConditionals": false
+}
+index-9XxxLFgJ.js:188 Domain value: b18c3636-14af-48b4-b343-be1590d27b79.janeway.prod.repl.run
+index-9XxxLFgJ.js:188 =====================================
+index-9XxxLFgJ.js:188 Quick create form data: {targetUrl: 'https://google.com', title: 'Test Link fsdfdsf', customSlug: 'my-test-link', domain: 'b18c3636-14af-48b4-b343-be1590d27b79.janeway.prod.repl.run', isActive: true, …}
+index-9XxxLFgJ.js:188   POST https://b18c3636-14af-48b4-b343-be1590d27b79.janeway.prod.repl.run/api/links 400 (Bad Request)
+mutationFn @ index-9XxxLFgJ.js:188
+fn @ index-9XxxLFgJ.js:48
+b @ index-9XxxLFgJ.js:48
+start @ index-9XxxLFgJ.js:48
+execute @ index-9XxxLFgJ.js:48
+await in execute
+mutate @ index-9XxxLFgJ.js:48
+(anonymous) @ index-9XxxLFgJ.js:48
+s @ index-9XxxLFgJ.js:188
+(anonymous) @ index-9XxxLFgJ.js:188
+await in (anonymous)
+Kj @ index-9XxxLFgJ.js:37
+Gj @ index-9XxxLFgJ.js:37
+Xj @ index-9XxxLFgJ.js:37
+Em @ index-9XxxLFgJ.js:37
+w1 @ index-9XxxLFgJ.js:37
+(anonymous) @ index-9XxxLFgJ.js:37
+ep @ index-9XxxLFgJ.js:40
+Ww @ index-9XxxLFgJ.js:37
+od @ index-9XxxLFgJ.js:37
+Eh @ index-9XxxLFgJ.js:37
+hE @ index-9XxxLFgJ.js:37
+index-9XxxLFgJ.js:188 Quick create response status: 400
+index-9XxxLFgJ.js:188 Quick create error: {"message":"Invalid link data"}
+index-9XxxLFgJ.js:188  Quick create error: Error: Invalid link data
+    at Object.mutationFn (index-9XxxLFgJ.js:188:197437)
+onError @ index-9XxxLFgJ.js:188
+execute @ index-9XxxLFgJ.js:48
+await in execute
+mutate @ index-9XxxLFgJ.js:48
+(anonymous) @ index-9XxxLFgJ.js:48
+s @ index-9XxxLFgJ.js:188
+(anonymous) @ index-9XxxLFgJ.js:188
+await in (anonymous)
+Kj @ index-9XxxLFgJ.js:37
+Gj @ index-9XxxLFgJ.js:37
+Xj @ index-9XxxLFgJ.js:37
+Em @ index-9XxxLFgJ.js:37
+w1 @ index-9XxxLFgJ.js:37
+(anonymous) @ index-9XxxLFgJ.js:37
+ep @ index-9XxxLFgJ.js:40
+Ww @ index-9XxxLFgJ.js:37
+od @ index-9XxxLFgJ.js:37
+Eh @ index-9XxxLFgJ.js:37
+hE @ index-9XxxLFgJ.js:37

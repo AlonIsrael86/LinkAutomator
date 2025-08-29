@@ -3,8 +3,30 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+// Add request body logging
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/links') && req.method === 'POST') {
+    console.log('=== INCOMING REQUEST ===');
+    console.log('Method:', req.method);
+    console.log('Path:', req.path);
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('Raw body before parsing:', req.body);
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Log body after parsing
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/links') && req.method === 'POST') {
+    console.log('Parsed body:', JSON.stringify(req.body, null, 2));
+    console.log('Content-Type:', req.get('Content-Type'));
+    console.log('========================');
+  }
+  next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();

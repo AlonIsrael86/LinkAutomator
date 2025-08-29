@@ -34,7 +34,15 @@ export default function QuickCreateForm() {
     mutationFn: async (data: InsertLink) => {
       console.log("Quick create form data:", data);
       
-      const response = await fetch("/api/links", {
+      // Use correct API base URL for development
+      const apiBaseUrl = (typeof window !== 'undefined' && window.location.hostname !== 'localhost') 
+        ? 'http://localhost:5000' 
+        : '';
+      const apiUrl = `${apiBaseUrl}/api/links`;
+      
+      console.log("Making request to:", apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
