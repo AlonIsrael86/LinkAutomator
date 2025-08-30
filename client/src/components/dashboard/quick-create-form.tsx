@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertLinkSchema, type InsertLink, type CustomDomain } from "@shared/schema";
+import { z } from "zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -22,12 +23,16 @@ export default function QuickCreateForm() {
   });
   
   const availableDomains = [
-    { domain: window.location.hostname, isDefault: true },
+    { domain: typeof window !== 'undefined' ? window.location.hostname : 'localhost', isDefault: true },
     ...customDomains.map(d => ({ domain: d.domain, isDefault: false }))
   ];
 
   const form = useForm<InsertLink>({
-    resolver: zodResolver(insertLinkSchema),
+    resolver: zodResolver(insertLinkSchema.extend({
+      customSlug: z.string().optional(), // Allow any string for custom slug
+      webhookUrl: z.string().optional(), // Allow optional webhook URL regardless of enableWebhook
+      conditionalRules: z.any().optional() // Allow any value for conditional rules
+    })),
     defaultValues: {
       targetUrl: "",
       title: "",
