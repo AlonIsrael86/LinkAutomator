@@ -138,33 +138,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           const webhookPayload = {
             event: 'link_created',
+            Client: link.title || 'Unknown',
+            metadata: {
+              shortlink: {
+                url: `https://${link.domain}/${link.shortCode}`,
+                destinationUrl: link.targetUrl
+              },
+              count: 0,
+              client: {
+                clientIp: creatorIP
+              },
+              userAgent: req.headers['user-agent'] || '',
+              timestamp: new Date().toISOString()
+            },
             id: link.id,
             shortCode: link.shortCode,
             title: link.title,
             targetUrl: link.targetUrl,
             domain: link.domain,
-            createdAt: link.createdAt,
-            timestamp: new Date().toISOString(),
-            // Creator information at root level for Make.com compatibility
-            ipAddress: creatorIP,
-            userAgent: req.headers['user-agent'] || '',
-            creatorTimestamp: new Date().toISOString(),
-            // Also keep nested structure for other webhook consumers
-            link: {
-              id: link.id,
-              shortCode: link.shortCode,
-              title: link.title,
-              targetUrl: link.targetUrl,
-              domain: link.domain,
-              createdAt: link.createdAt
-            },
-            creator: {
-              ipAddress: creatorIP,
-              userAgent: req.headers['user-agent'] || '',
-              timestamp: new Date().toISOString()
-            }
+            createdAt: link.createdAt
           };
-          
+                    
           console.log("Webhook payload:", JSON.stringify(webhookPayload, null, 2));
           console.log(`🚀 Webhook URL being called: ${link.webhookUrl}`);
           console.log(`📦 Payload includes creator.ipAddress: ${webhookPayload.creator.ipAddress}`);
@@ -514,28 +508,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         os: extractOS(userAgent)
       });
 
-      // Send webhook if enabled
-      if (link.enableWebhook && link.webhookUrl) {
-        try {
-          await axios.post(link.webhookUrl, {
-            event: 'click',
-            link: {
-              id: link.id,
-              shortCode: link.shortCode,
-              title: link.title,
-              targetUrl: link.targetUrl
-            },
-            click: {
-              ipAddress,
-              userAgent,
-              referer,
-              timestamp: new Date().toISOString()
-            }
-          });
-        } catch (error) {
-          console.error('Webhook error:', error);
-        }
+// Send webhook if enabled
+if (link.enableWebhook && link.webhookUrl) {
+  try {
+    const clicks = await storage.getClicksByLinkId(link.id);
+    const clickCount = clicks.length;
+    
+    await axios.post(link.webhookUrl, {
+      event: 'click',
+      Client: link.title || 'Unknown',
+      metadata: {
+        shortlink: {
+          url: `https://${link.domain}/${link.shortCode}`,
+          destinationUrl: link.targetUrl
+        },
+        count: clickCount,
+        client: {
+          clientIp: ipAddress
+        },
+        userAgent: userAgent,
+        referer: referer,
+        device: extractDevice(userAgent),
+        browser: extractBrowser(userAgent),
+        os: extractOS(userAgent),
+        timestamp: new Date().toISOString()
       }
+    }, {
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Link-Automator-Webhook/1.0'
+      }
+    });
+    console.log('Click webhook sent successfully');
+  } catch (error) {
+    console.error('Webhook error:', error);
+  }
+}
 
       // Handle conditional redirects
       if (link.enableConditionals && link.conditionalRules) {
