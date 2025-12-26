@@ -270,7 +270,7 @@ export default function LandingPage() {
               <a href="#" className="hover:text-white transition-colors">צור קשר</a>
             </div>
             <div className="text-gray-500 text-sm mt-4 md:mt-0">
-              © 2024 Just In Time. כל הזכויות שמורות.
+            © Just In Time. כל הזכויות שמורות.
             </div>
           </div>
         </div>

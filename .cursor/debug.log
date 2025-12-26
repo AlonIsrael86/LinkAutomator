@@ -1,0 +1,17 @@
+{"location":"App.tsx:115","message":"Rendering ClerkProvider","data":{"hasClerkKey":true,"windowLocation":"https://linkautomator.justintime.co.il/"},"timestamp":1766783082372,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"App.tsx:56","message":"useUser hook values","data":{"isLoaded":false},"timestamp":1766783082378,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:52","message":"AppContent function entry","data":{},"timestamp":1766783082377,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:63","message":"Returning loading spinner","data":{"isLoaded":false},"timestamp":1766783082378,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:91","message":"App component mounted","data":{"hasClerkKey":true,"windowLocation":"https://linkautomator.justintime.co.il/"},"timestamp":1766783082379,"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}
+{"location":"App.tsx:52","message":"AppContent function entry","data":{},"timestamp":1766783084117,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:56","message":"useUser hook values","data":{"isSignedIn":false,"isLoaded":true},"timestamp":1766783084117,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:97","message":"Returning LandingPage component","data":{"isSignedIn":false,"isLoaded":true},"timestamp":1766783084117,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"landing.tsx:25","message":"LandingPage component mounted","data":{"windowLocation":"https://linkautomator.justintime.co.il/","clerkElementsCount":1},"timestamp":1766783084120,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"App.tsx:115","message":"Rendering ClerkProvider","data":{"hasClerkKey":true,"windowLocation":"https://linkautomator.justintime.co.il/?__clerk_db_jwt=dvb_37OneuPMlaBuYTlTHe3WLS75DlL"},"timestamp":1766783158641,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"App.tsx:52","message":"AppContent function entry","data":{},"timestamp":1766783158645,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:56","message":"useUser hook values","data":{"isLoaded":false},"timestamp":1766783158646,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:63","message":"Returning loading spinner","data":{"isLoaded":false},"timestamp":1766783158646,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:91","message":"App component mounted","data":{"hasClerkKey":true,"windowLocation":"https://linkautomator.justintime.co.il/?__clerk_db_jwt=dvb_37OneuPMlaBuYTlTHe3WLS75DlL"},"timestamp":1766783158647,"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}
+{"location":"App.tsx:52","message":"AppContent function entry","data":{},"timestamp":1766783159824,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:56","message":"useUser hook values","data":{"isSignedIn":true,"isLoaded":true},"timestamp":1766783159824,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"App.tsx:77","message":"Returning AuthenticatedApp component","data":{"isSignedIn":true,"isLoaded":true},"timestamp":1766783159825,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}

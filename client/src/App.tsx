@@ -21,25 +21,6 @@ import ApiAccess from "@/pages/api-access";
 import Sidebar from "@/components/layout/sidebar";
 import { useEffect } from "react";
 
-// #region agent log
-const LOG_ENDPOINT = 'http://127.0.0.1:7243/ingest/58a5141c-77e9-4e25-8e89-e0ca371e4243';
-const log = (location: string, message: string, data: any, hypothesisId?: string) => {
-  fetch(LOG_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      location,
-      message,
-      data,
-      timestamp: Date.now(),
-      sessionId: 'debug-session',
-      runId: 'run1',
-      hypothesisId
-    })
-  }).catch(() => {});
-};
-// #endregion agent log
-
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 function AuthenticatedApp() {
@@ -69,23 +50,9 @@ function AuthenticatedApp() {
 }
 
 function AppContent() {
-  // #region agent log
-  log('App.tsx:52', 'AppContent function entry', {}, 'B');
-  // #endregion agent log
-  
   const { isSignedIn, isLoaded } = useUser();
 
-  // #region agent log
-  log('App.tsx:56', 'useUser hook values', { isSignedIn, isLoaded }, 'B');
-  // #endregion agent log
-
-  console.log("DEBUG - isLoaded:", isLoaded, "isSignedIn:", isSignedIn);
-
-  // Show loading while Clerk is initializing
   if (!isLoaded) {
-    // #region agent log
-    log('App.tsx:63', 'Returning loading spinner', { isLoaded, isSignedIn }, 'B');
-    // #endregion agent log
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
@@ -93,74 +60,14 @@ function AppContent() {
     );
   }
 
-  // Show landing page if not signed in
   if (!isSignedIn) {
-    // #region agent log
-    // Visual indicator
-    useEffect(() => {
-      const indicator = document.getElementById('debug-indicator');
-      if (indicator) {
-        indicator.style.background = 'orange';
-        indicator.textContent = '🟡 RETURNING LANDING PAGE';
-      }
-    }, []);
-    
-    console.log('🟡🟡🟡 RETURNING LANDING PAGE - isSignedIn is FALSE 🟡🟡🟡');
-    console.log('[DEBUG] AppContent: Returning LandingPage, isSignedIn:', isSignedIn, 'isLoaded:', isLoaded);
-    console.log('[DEBUG] AppContent: About to render LandingPage component');
-    try {
-      log('App.tsx:97', 'Returning LandingPage component', { isSignedIn, isLoaded }, 'A');
-    } catch (e) {
-      console.error('[DEBUG] AppContent: Error logging:', e);
-    }
-    // #endregion agent log
-    const landingPageElement = <LandingPage />;
-    console.log('[DEBUG] AppContent: LandingPage element created:', landingPageElement);
-    return landingPageElement;
+    return <LandingPage />;
   }
 
-  // Show authenticated app
-  // #region agent log
-  log('App.tsx:77', 'Returning AuthenticatedApp component', { isSignedIn, isLoaded }, 'B');
-  // #endregion agent log
   return <AuthenticatedApp />;
 }
 
 function App() {
-  // #region agent log
-  // Visual indicator
-  useEffect(() => {
-    const indicator = document.getElementById('debug-indicator');
-    if (indicator) {
-      indicator.style.background = 'green';
-      indicator.textContent = '🟢 APP FUNCTION EXECUTING';
-    }
-  }, []);
-  
-  console.log('🟢🟢🟢 APP FUNCTION EXECUTING - IF YOU SEE THIS, APP IS RENDERING 🟢🟢🟢');
-  console.log('[DEBUG] App function executing - TOP LEVEL');
-  console.log('[DEBUG] App - clerkPublishableKey exists:', !!clerkPublishableKey);
-  console.log('[DEBUG] App - window.location:', window.location.href);
-  
-  useEffect(() => {
-    console.log('[DEBUG] App useEffect running');
-    log('App.tsx:91', 'App component mounted', { 
-      hasClerkKey: !!clerkPublishableKey,
-      windowLocation: window.location.href 
-    }, 'D');
-    
-    // Monitor for navigation changes
-    const handlePopState = () => {
-      log('App.tsx:98', 'Navigation detected (popstate)', { 
-        windowLocation: window.location.href 
-      }, 'D');
-    };
-    window.addEventListener('popstate', handlePopState);
-    
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-  // #endregion agent log
-  
   if (!clerkPublishableKey) {
     return (
       <QueryClientProvider client={queryClient}>
@@ -176,15 +83,6 @@ function App() {
       </QueryClientProvider>
     );
   }
-
-  // #region agent log
-  console.log('[DEBUG] App: About to render ClerkProvider');
-  console.log('[DEBUG] App: Rendering ClerkProvider with key:', !!clerkPublishableKey);
-  log('App.tsx:115', 'Rendering ClerkProvider', { 
-    hasClerkKey: !!clerkPublishableKey,
-    windowLocation: window.location.href 
-  }, 'E');
-  // #endregion agent log
 
   return (
     <ClerkProvider
