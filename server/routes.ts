@@ -1,11 +1,60 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import type { Request, Response, NextFunction } from "express";
 import { insertLinkSchema, insertWebhookSchema, insertCustomDomainSchema, insertApiTokenSchema } from "@shared/schema";
 import { randomBytes } from "crypto";
 import axios from "axios";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Basic Auth middleware - protects /api routes only
+  const basicAuth = (req: Request, res: Response, next: NextFunction) => {
+    // Skip auth for login endpoint
+    if (req.path === '/api/auth/login') {
+      return next();
+    }
+    
+    // Skip auth for short link redirects (8-character hex codes)
+    const path = req.path;
+    if (path.length >= 2 && path.length <= 10 && /^\/[a-f0-9]+$/i.test(path)) {
+      return next();
+    }
+    
+    // Skip auth for static assets
+    if (path.match(/\.(js|css|ico|png|jpg|jpeg|svg|woff|woff2|ttf)$/)) {
+      return next();
+    }
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+      res.setHeader('WWW-Authenticate', 'Basic realm="Dashboard"');
+      return res.status(401).send('Authentication required');
+    }
+    
+    const base64 = authHeader.split(' ')[1];
+    const [user, pass] = Buffer.from(base64, 'base64').toString().split(':');
+    
+    if (pass === process.env.ADMIN_PASSWORD) {
+      next();
+    } else {
+      res.setHeader('WWW-Authenticate', 'Basic realm="Dashboard"');
+      return res.status(401).send('Invalid credentials');
+    }
+  };
+
+  // Auth Login Route
+  app.post("/api/auth/login", (req, res) => {
+    const { password } = req.body;
+    if (password === process.env.ADMIN_PASSWORD) {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ message: "Invalid credentials" });
+    }
+  });
+
+  // Apply auth to ALL routes (except those skipped above)
+  app.use(basicAuth);
+  
   // API Routes
   // Links
   app.get("/api/links", async (req, res) => {

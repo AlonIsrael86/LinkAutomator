@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -86,15 +87,11 @@ app.use((req, res, next) => {
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
   
-  console.log(`Starting server on 0.0.0.0:${port}`);
+  console.log(`Starting server on localhost:${port}`);
   console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
   console.log(`PORT env var: ${process.env.PORT}`);
   
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  server.listen(port, () => {
     log(`serving on port ${port}`);
     console.log(`Server successfully bound to 0.0.0.0:${port}`);
   });

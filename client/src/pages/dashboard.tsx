@@ -9,13 +9,13 @@ export default function Dashboard() {
   return (
     <>
       <TopBar 
-        title="Dashboard"
-        subtitle="Overview of your link performance"
-        buttonText="Create New Link"
+        title="לוח בקרה"
+        subtitle="סקירה כללית של ביצועי הלינקים שלך"
+        buttonText="צור לינק חדש"
         buttonAction="/create-link"
       />
       
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 text-right" dir="rtl">
         <StatsCards />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
