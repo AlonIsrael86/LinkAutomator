@@ -14,12 +14,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return next();
     }
     
+    // Skip auth for frontend (let React handle auth)
+    if (req.path === '/' || !req.path.startsWith('/api')) {
+      return next();
+    }
+    
     // Skip auth for short link redirects (8-character hex codes)
     const path = req.path;
     if (path.length >= 2 && path.length <= 10 && /^\/[a-f0-9]+$/i.test(path)) {
       return next();
     }
     
+    // Skip auth for static assets
+    if (path.match(/\.(js|css|ico|png|jpg|jpeg|svg|woff|woff2|ttf)$/)) {
+      return next();
+    }
+      
     // Skip auth for static assets
     if (path.match(/\.(js|css|ico|png|jpg|jpeg|svg|woff|woff2|ttf)$/)) {
       return next();
