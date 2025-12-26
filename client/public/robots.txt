@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /api/
+Disallow: /my-links
+Disallow: /analytics
+Disallow: /webhooks
+Disallow: /settings
+
+Sitemap: https://linkautomator.justintime.co.il/sitemap.xml
+

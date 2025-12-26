@@ -1,75 +1,22 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import type { Request, Response, NextFunction } from "express";
 import { insertLinkSchema, insertWebhookSchema, insertCustomDomainSchema, insertApiTokenSchema } from "@shared/schema";
 import { randomBytes } from "crypto";
 import axios from "axios";
+import { requireAuth, optionalAuth } from "./auth";
+import { Webhook } from "svix";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Basic Auth middleware - protects /api routes only
-  const basicAuth = (req: Request, res: Response, next: NextFunction) => {
-    // Skip auth for login endpoint
-    if (req.path === '/api/auth/login') {
-      return next();
-    }
-    
-    // Skip auth for frontend (let React handle auth)
-    if (req.path === '/' || !req.path.startsWith('/api')) {
-      return next();
-    }
-    
-    // Skip auth for short link redirects (8-character hex codes)
-    const path = req.path;
-    if (path.length >= 2 && path.length <= 10 && /^\/[a-f0-9]+$/i.test(path)) {
-      return next();
-    }
-    
-    // Skip auth for static assets
-    if (path.match(/\.(js|css|ico|png|jpg|jpeg|svg|woff|woff2|ttf)$/)) {
-      return next();
-    }
-      
-    // Skip auth for static assets
-    if (path.match(/\.(js|css|ico|png|jpg|jpeg|svg|woff|woff2|ttf)$/)) {
-      return next();
-    }
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Basic ')) {
-      res.setHeader('WWW-Authenticate', 'Basic realm="Dashboard"');
-      return res.status(401).send('Authentication required');
-    }
-    
-    const base64 = authHeader.split(' ')[1];
-    const [user, pass] = Buffer.from(base64, 'base64').toString().split(':');
-    
-    if (pass === process.env.ADMIN_PASSWORD) {
-      next();
-    } else {
-      res.setHeader('WWW-Authenticate', 'Basic realm="Dashboard"');
-      return res.status(401).send('Invalid credentials');
-    }
-  };
-
-  // Auth Login Route
-  app.post("/api/auth/login", (req, res) => {
-    const { password } = req.body;
-    if (password === process.env.ADMIN_PASSWORD) {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ message: "Invalid credentials" });
-    }
-  });
-
-  // Apply auth to ALL routes (except those skipped above)
-  app.use(basicAuth);
-  
   // API Routes
-  // Links
-  app.get("/api/links", async (req, res) => {
+  // Links - Protected routes require authentication
+  app.get("/api/links", requireAuth, async (req, res) => {
     try {
+      // Filter links by authenticated user
       const links = await storage.getAllLinks();
+      // TODO: Filter by userId when user association is added to schema
       res.json(links);
     } catch (error) {
       console.error('Get links error:', error);
@@ -77,7 +24,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/links/top", async (req, res) => {
+  app.get("/api/links/top", optionalAuth, async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
       const topLinks = await storage.getTopLinks(limit);
@@ -88,11 +35,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/links", async (req, res) => {
+  app.post("/api/links", requireAuth, async (req, res) => {
     try {
       console.log("API received data:", JSON.stringify(req.body, null, 2));
       const validatedData = insertLinkSchema.parse(req.body);
       console.log("Validation passed, creating link...");
+      // TODO: Associate link with userId from req.userId
       const link = await storage.createLink(validatedData);
       console.log("Link created successfully:", link.shortCode);
 
@@ -206,7 +154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/links/:id", async (req, res) => {
+  app.get("/api/links/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const link = await storage.getLinkById(id);
@@ -220,7 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/links/:id", async (req, res) => {
+  app.put("/api/links/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const updates = req.body;
@@ -235,7 +183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/links/:id", async (req, res) => {
+  app.delete("/api/links/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const deleted = await storage.deleteLink(id);
@@ -250,7 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analytics
-  app.get("/api/analytics", async (req, res) => {
+  app.get("/api/analytics", requireAuth, async (req, res) => {
     try {
       const { linkId, startDate, endDate } = req.query;
       const start = startDate ? new Date(startDate as string) : undefined;
@@ -264,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/dashboard", async (req, res) => {
+  app.get("/api/analytics/dashboard", requireAuth, async (req, res) => {
     try {
       const now = new Date();
       const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -294,7 +242,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Export analytics as CSV
-  app.get("/api/analytics/export", async (req, res) => {
+  app.get("/api/analytics/export", requireAuth, async (req, res) => {
     try {
       const { linkId, startDate, endDate } = req.query;
       const start = startDate ? new Date(startDate as string) : undefined;
@@ -339,7 +287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Webhooks
-  app.get("/api/webhooks", async (req, res) => {
+  app.get("/api/webhooks", requireAuth, async (req, res) => {
     try {
       const webhooks = await storage.getWebhooks();
       res.json(webhooks);
@@ -349,7 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/webhooks", async (req, res) => {
+  app.post("/api/webhooks", requireAuth, async (req, res) => {
     try {
       const validatedData = insertWebhookSchema.parse(req.body);
       const webhook = await storage.createWebhook(validatedData);
@@ -360,7 +308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/webhooks/:id", async (req, res) => {
+  app.put("/api/webhooks/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const updates = req.body;
@@ -375,7 +323,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/webhooks/:id", async (req, res) => {
+  app.delete("/api/webhooks/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const deleted = await storage.deleteWebhook(id);
@@ -390,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Custom Domains
-  app.get("/api/domains", async (req, res) => {
+  app.get("/api/domains", requireAuth, async (req, res) => {
     try {
       const domains = await storage.getCustomDomains();
       res.json(domains);
@@ -400,7 +348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/domains", async (req, res) => {
+  app.post("/api/domains", requireAuth, async (req, res) => {
     try {
       const validatedData = insertCustomDomainSchema.parse(req.body);
       const domain = await storage.createCustomDomain(validatedData);
@@ -412,7 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // API Tokens
-  app.get("/api/tokens", async (req, res) => {
+  app.get("/api/tokens", requireAuth, async (req, res) => {
     try {
       const tokens = await storage.getApiTokens();
       res.json(tokens);
@@ -422,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/tokens", async (req, res) => {
+  app.post("/api/tokens", requireAuth, async (req, res) => {
     try {
       const { name } = req.body;
       const token = randomBytes(32).toString('hex');
@@ -438,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/tokens/:id", async (req, res) => {
+  app.delete("/api/tokens/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const deleted = await storage.deleteApiToken(id);
@@ -450,6 +398,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Delete token error:', error);
       res.status(500).json({ message: "Internal server error" });
     }
+  });
+
+  // Clerk Webhook endpoint
+  app.post("/api/webhooks/clerk", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+    const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
+    
+    if (!WEBHOOK_SECRET) {
+      console.error('Missing CLERK_WEBHOOK_SECRET');
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
+
+    const svix_id = req.headers['svix-id'] as string;
+    const svix_timestamp = req.headers['svix-timestamp'] as string;
+    const svix_signature = req.headers['svix-signature'] as string;
+
+    if (!svix_id || !svix_timestamp || !svix_signature) {
+      return res.status(400).json({ error: 'Missing svix headers' });
+    }
+
+    const wh = new Webhook(WEBHOOK_SECRET);
+    let evt: any;
+
+    try {
+      evt = wh.verify(req.body, {
+        'svix-id': svix_id,
+        'svix-timestamp': svix_timestamp,
+        'svix-signature': svix_signature,
+      });
+    } catch (err) {
+      console.error('Webhook verification failed:', err);
+      return res.status(400).json({ error: 'Webhook verification failed' });
+    }
+
+    const eventType = evt.type;
+    
+    if (eventType === 'user.created' || eventType === 'user.updated') {
+      const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+      const email = email_addresses?.[0]?.email_address;
+      
+      try {
+        await storage.upsertUser({
+          clerkId: id,
+          email: email,
+          firstName: first_name,
+          lastName: last_name,
+          imageUrl: image_url,
+        });
+        console.log(`User ${eventType === 'user.created' ? 'created' : 'updated'}: ${email}`);
+      } catch (error) {
+        console.error('Error saving user:', error);
+        return res.status(500).json({ error: 'Failed to save user' });
+      }
+    }
+
+    if (eventType === 'user.deleted') {
+      const { id } = evt.data;
+      try {
+        await storage.deleteUserByClerkId(id);
+        console.log(`User deleted: ${id}`);
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
+    }
+
+    res.status(200).json({ received: true });
   });
 
   // Redirect route - handles short link clicks (placed LAST so it doesn't interfere with API routes)

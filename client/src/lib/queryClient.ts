@@ -7,35 +7,41 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Function to get Clerk token - will be set by the app
+let getToken: (() => Promise<string | null>) | null = null;
+
+export function setTokenGetter(getter: () => Promise<string | null>) {
+  getToken = getter;
+}
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Ensure API requests go to correct base URL
   const baseUrl = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
     ? 'http://localhost:5000' 
     : '';
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
   
-  console.log(`Making ${method} request to: ${fullUrl}`);
+  // Get token from Clerk
+  const token = getToken ? await getToken() : null;
+  
+  const headers: Record<string, string> = {};
   if (data) {
-    console.log('Request data:', JSON.stringify(data, null, 2));
+    headers["Content-Type"] = "application/json";
+  }
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
   
   const res = await fetch(fullUrl, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
 
-  console.log(`Response status: ${res.status}`);
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.log('Response error:', errorText);
-  }
-  
   await throwIfResNotOk(res);
   return res;
 }
@@ -46,8 +52,23 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const baseUrl = (typeof window !== 'undefined' && window.location.hostname === 'localhost') 
+      ? 'http://localhost:5000' 
+      : '';
+    const url = queryKey.join("/") as string;
+    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    
+    // Get token from Clerk
+    const token = getToken ? await getToken() : null;
+    
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    
+    const res = await fetch(fullUrl, {
       credentials: "include",
+      headers,
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

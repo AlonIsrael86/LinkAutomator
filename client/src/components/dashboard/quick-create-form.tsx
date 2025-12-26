@@ -76,47 +76,7 @@ export default function QuickCreateForm() {
       console.log("Current hostname:", window.location.hostname);
       console.log("Cleaned request data:", JSON.stringify(cleanData, null, 2));
       
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest"
-        },
-        body: JSON.stringify(cleanData)
-      });
-
-      console.log("Quick create response status:", response.status);
-      console.log("Response headers:", Object.fromEntries(response.headers.entries()));
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.log("Quick create error response:", errorData);
-        
-        let userFriendlyMessage = "נכשל ביצירת הקישור"; // Default: Failed to create link
-        
-        try {
-          const parsed = JSON.parse(errorData);
-          const backendMessage = parsed.message || "Unknown error";
-          
-          // Handle specific error cases with Hebrew translations
-          if (backendMessage === "Custom slug is already taken") {
-            userFriendlyMessage = "הקישור המקוצר כבר קיים. אנא בחר שם אחר"; // Custom slug already exists. Please choose another name
-          } else if (backendMessage.includes("validation") || backendMessage.includes("Invalid")) {
-            userFriendlyMessage = "הנתונים שהוזנו אינם תקינים. אנא בדוק שהקישור תקין"; // Invalid data entered. Please check that the link is valid
-          } else {
-            // Use the backend message as-is for other errors
-            userFriendlyMessage = backendMessage;
-          }
-          
-          console.log("Parsed error details:", parsed);
-          console.log("User-friendly message:", userFriendlyMessage);
-        } catch {
-          console.log("Raw error text:", errorData);
-        }
-        
-        throw new Error(userFriendlyMessage);
-      }
-
+      const response = await apiRequest("POST", apiUrl, cleanData);
       return response.json();
     },
     onSuccess: () => {

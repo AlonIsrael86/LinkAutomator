@@ -7,7 +7,7 @@ import TopLinksTable from "@/components/dashboard/top-links-table";
 
 export default function Dashboard() {
   return (
-    <>
+    <div className="min-h-screen">
       <TopBar 
         title="לוח בקרה"
         subtitle="סקירה כללית של ביצועי הלינקים שלך"
@@ -15,19 +15,26 @@ export default function Dashboard() {
         buttonAction="/create-link"
       />
       
-      <div className="p-6 space-y-6 text-right" dir="rtl">
-        <StatsCards />
+      <div className="p-8 space-y-8" dir="rtl">
+        <section>
+          <StatsCards />
+        </section>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <QuickCreateForm />
           </div>
           <RecentActivity />
-        </div>
+        </section>
 
-        <AnalyticsChart />
-        <TopLinksTable />
+        <section>
+          <AnalyticsChart />
+        </section>
+        
+        <section>
+          <TopLinksTable />
+        </section>
       </div>
-    </>
+    </div>
   );
 }

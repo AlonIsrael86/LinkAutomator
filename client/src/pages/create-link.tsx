@@ -12,6 +12,7 @@ import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { type CustomDomain } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function CreateLink() {
   const { toast } = useToast();
@@ -53,11 +54,8 @@ export default function CreateLink() {
   // Simple direct form submission without complex validation
   const handleDirectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Direct form submit triggered");
-    console.log("Current form data:", formData);
     
     if (!formData.targetUrl || !formData.title) {
-      console.log("Validation failed - missing required fields");
       toast({
         title: "Error",
         description: "Please fill in Target URL and Link Title",
@@ -67,32 +65,8 @@ export default function CreateLink() {
     }
 
     try {
-      const response = await fetch("/api/links", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      });
-
-      console.log("Response status:", response.status);
-      console.log("Response headers:", response.headers);
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.log("Error response body:", errorData);
-        
-        let errorMessage = "Failed to create link";
-        try {
-          const parsed = JSON.parse(errorData);
-          errorMessage = parsed.message || errorMessage;
-        } catch {
-          errorMessage = errorData || errorMessage;
-        }
-        
-        throw new Error(errorMessage);
-      }
-
+      const response = await apiRequest("POST", "/api/links", formData);
       const newLink = await response.json();
-      console.log("Link created:", newLink);
       
       toast({
         title: "Success",
@@ -102,7 +76,6 @@ export default function CreateLink() {
       setLocation("/my-links");
     } catch (error: any) {
       console.error("Create link error:", error);
-      console.error("Error details:", error.message, error.stack);
       toast({
         title: "Error", 
         description: error.message || "Failed to create link",

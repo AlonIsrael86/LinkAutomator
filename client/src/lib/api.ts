@@ -1,5 +1,8 @@
 import { apiRequest } from "./queryClient";
 
+// Note: Components should use useAuth() hook directly to get tokens
+// This file provides the base API client methods
+
 export interface CreateLinkRequest {
   targetUrl: string;
   title: string;

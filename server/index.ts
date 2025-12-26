@@ -2,6 +2,12 @@ import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { clerkClient } from "@clerk/clerk-sdk-node";
+
+// Initialize Clerk with secret key from environment
+if (!process.env.CLERK_SECRET_KEY) {
+  console.warn("Warning: CLERK_SECRET_KEY not found in environment variables. Authentication will not work.");
+}
 
 const app = express();
 // Trust proxy for accurate IP address detection in production

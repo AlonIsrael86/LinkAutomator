@@ -26,7 +26,16 @@ export interface IStorage {
   // User methods
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByClerkId(clerkId: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  upsertUser(userData: {
+    clerkId: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    imageUrl?: string;
+  }): Promise<User>;
+  deleteUserByClerkId(clerkId: string): Promise<boolean>;
 
   // Link methods
   createLink(link: InsertLink): Promise<Link>;
@@ -87,6 +96,57 @@ export class DatabaseStorage implements IStorage {
       .values(insertUser)
       .returning();
     return user;
+  }
+
+  async getUserByClerkId(clerkId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.clerkId, clerkId));
+    return user || undefined;
+  }
+
+  async upsertUser(userData: {
+    clerkId: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    imageUrl?: string;
+  }): Promise<User> {
+    const existing = await db
+      .select()
+      .from(users)
+      .where(eq(users.clerkId, userData.clerkId))
+      .limit(1);
+
+    if (existing.length > 0) {
+      const [updated] = await db
+        .update(users)
+        .set({
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          imageUrl: userData.imageUrl,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.clerkId, userData.clerkId))
+        .returning();
+      return updated;
+    }
+
+    const [newUser] = await db
+      .insert(users)
+      .values({
+        clerkId: userData.clerkId,
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        imageUrl: userData.imageUrl,
+      })
+      .returning();
+    return newUser;
+  }
+
+  async deleteUserByClerkId(clerkId: string): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.clerkId, clerkId));
+    return (result.rowCount ?? 0) > 0;
   }
 
   async createLink(link: InsertLink): Promise<Link> {
