@@ -104,10 +104,10 @@ function App() {
   return (
     <ClerkProvider
       publishableKey={clerkPublishableKey}      
-      afterSignInUrl="/"
-      afterSignUpUrl="/"
-      signInFallbackRedirectUrl="/"
-      signUpFallbackRedirectUrl="/"
+      afterSignInUrl="/dashboard"
+      afterSignUpUrl="/dashboard"
+      signInFallbackRedirectUrl="/dashboard"
+      signUpFallbackRedirectUrl="/dashboard"
       appearance={{
         baseTheme: dark,
         variables: {
