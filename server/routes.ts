@@ -8,6 +8,7 @@ import { randomBytes } from "crypto";
 import axios from "axios";
 import { requireAuth, optionalAuth } from "./auth";
 import { Webhook } from "svix";
+import { sendNotificationEmail, formatSignupEmail, formatLinkCreatedEmail } from "./email";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes
@@ -43,6 +44,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // TODO: Associate link with userId from req.userId
       const link = await storage.createLink(validatedData);
       console.log("Link created successfully:", link.shortCode);
+      // Send email notification for link creation
+      sendNotificationEmail(formatLinkCreatedEmail({
+        shortCode: link.shortCode,
+        targetUrl: link.targetUrl,
+        title: link.title || undefined,
+        domain: link.domain || undefined
+      })).catch((err: Error) => console.error('Email notification failed:', err));
 
       // Send webhook notification for link creation
       if (link.enableWebhook && link.webhookUrl) {
@@ -436,7 +444,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (eventType === 'user.created' || eventType === 'user.updated') {
       const { id, email_addresses, first_name, last_name, image_url } = evt.data;
       const email = email_addresses?.[0]?.email_address;
-      
+                    // Send email notification for new signup
+              if (eventType === 'user.created') {
+                sendNotificationEmail(formatSignupEmail({
+                  clerkId: id,
+                  email: email,
+                  firstName: first_name,
+                  lastName: last_name
+                })).catch((err: Error) => console.error('Email notification failed:', err));
+
+              }      
       try {
         await storage.upsertUser({
           clerkId: id,
