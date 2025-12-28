@@ -1,3 +1,4 @@
+import { SignInButton, SignUpButton } from '@clerk/clerk-react';
 import { Link2, BarChart3, Webhook, Globe, Zap, Shield, QrCode, Smartphone, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -24,12 +25,18 @@ export default function LandingPage() {
             </div>
             <span className="text-2xl font-bold text-white">Link Automator</span>
           </div>
-          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-            <Button className="bg-green-500 hover:bg-green-600 text-black font-semibold gap-2">
-              <MessageCircle className="w-4 h-4" />
-              צור קשר
-            </Button>
-          </a>
+          <div className="flex items-center gap-3">
+            <SignInButton mode="modal">
+              <Button variant="ghost" className="text-gray-300 hover:text-white">
+                התחברות
+              </Button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <Button className="bg-green-500 hover:bg-green-600 text-black font-semibold">
+                הרשמה
+              </Button>
+            </SignUpButton>
+          </div>
         </nav>
 
         {/* Hero Content */}
@@ -54,10 +61,16 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <SignUpButton mode="modal">
+              <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold text-lg px-8 py-6">
+                התחל בחינם
+                <Zap className="w-5 h-5 mr-2" />
+              </Button>
+            </SignUpButton>
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold text-lg px-8 py-6 gap-2">
+              <Button size="lg" variant="outline" className="border-gray-600 text-white hover:bg-gray-800 text-lg px-8 py-6 gap-2">
                 <MessageCircle className="w-5 h-5" />
-                דבר איתנו בוואטסאפ
+                דבר איתנו
               </Button>
             </a>
           </div>
@@ -89,7 +102,6 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Feature 1 */}
             <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all group">
               <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
                 <BarChart3 className="w-6 h-6 text-green-400" />
@@ -98,7 +110,6 @@ export default function LandingPage() {
               <p className="text-gray-400">מעקב קליקים בזמן אמת עם פילוח לפי מכשיר, מיקום, ודפדפן</p>
             </div>
 
-            {/* Feature 2 */}
             <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all group">
               <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
                 <Webhook className="w-6 h-6 text-green-400" />
@@ -107,7 +118,6 @@ export default function LandingPage() {
               <p className="text-gray-400">אינטגרציה עם Make.com, Zapier ועוד לאוטומציות בלתי מוגבלות</p>
             </div>
 
-            {/* Feature 3 */}
             <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all group">
               <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
                 <Globe className="w-6 h-6 text-green-400" />
@@ -116,7 +126,6 @@ export default function LandingPage() {
               <p className="text-gray-400">השתמש בדומיין שלך לברנדינג מושלם ואמינות מוגברת</p>
             </div>
 
-            {/* Feature 4 */}
             <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all group">
               <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
                 <QrCode className="w-6 h-6 text-green-400" />
@@ -125,7 +134,6 @@ export default function LandingPage() {
               <p className="text-gray-400">יצירת QR קודים אוטומטית לכל לינק עם מעקב קליקים</p>
             </div>
 
-            {/* Feature 5 */}
             <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all group">
               <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
                 <Smartphone className="w-6 h-6 text-green-400" />
@@ -134,7 +142,6 @@ export default function LandingPage() {
               <p className="text-gray-400">הפנה משתמשים ליעדים שונים לפי מכשיר, מיקום או זמן</p>
             </div>
 
-            {/* Feature 6 */}
             <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all group">
               <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
                 <Shield className="w-6 h-6 text-green-400" />
@@ -143,7 +150,6 @@ export default function LandingPage() {
               <p className="text-gray-400">גישה מלאה ל-API עם אימות טוקנים ותיעוד מלא</p>
             </div>
 
-            {/* Feature 7 */}
             <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all group">
               <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
                 <Zap className="w-6 h-6 text-green-400" />
@@ -152,7 +158,6 @@ export default function LandingPage() {
               <p className="text-gray-400">הפניות ב-50ms בממוצע עם CDN גלובלי</p>
             </div>
 
-            {/* Feature 8 */}
             <div className="bg-gray-900/50 border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all group">
               <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
                 <BarChart3 className="w-6 h-6 text-green-400" />
@@ -197,15 +202,14 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">מוכן להתחיל?</h2>
           <p className="text-xl text-gray-300 mb-8">
-            צור איתנו קשר בוואטסאפ ונעזור לך להתחיל
+            הצטרף עכשיו והתחל לקצר לינקים בחינם
           </p>
-          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-            <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold text-lg px-12 py-6 gap-2">
-              <MessageCircle className="w-5 h-5" />
-              דבר איתנו עכשיו
+          <SignUpButton mode="modal">
+            <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold text-lg px-12 py-6">
+              צור חשבון חינם
             </Button>
-          </a>
-          <p className="text-gray-400 mt-4 text-sm">מענה מהיר • ללא התחייבות</p>
+          </SignUpButton>
+          <p className="text-gray-400 mt-4 text-sm">ללא כרטיס אשראי • התחל תוך 30 שניות</p>
         </div>
       </section>
 

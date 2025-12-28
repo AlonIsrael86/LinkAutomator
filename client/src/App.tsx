@@ -19,16 +19,32 @@ import Webhooks from "@/pages/webhooks";
 import CustomDomain from "@/pages/custom-domain";
 import ApiAccess from "@/pages/api-access";
 import Sidebar from "@/components/layout/sidebar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 function AuthenticatedApp() {
   const { getToken } = useAuth();
+  const [tokenReady, setTokenReady] = useState(false);
 
   useEffect(() => {
-    setTokenGetter(getToken);
+    const initToken = async () => {
+      setTokenGetter(getToken);
+      // Wait for token to be ready
+      await getToken();
+      setTokenReady(true);
+    };
+    initToken();
   }, [getToken]);
+
+  // Show loading until token is ready
+  if (!tokenReady) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-[#0A0A0A]" dir="rtl">
@@ -36,6 +52,7 @@ function AuthenticatedApp() {
       <main className="flex-1 overflow-auto w-full lg:w-auto">
         <Switch>
           <Route path="/" component={Dashboard} />
+          <Route path="/dashboard" component={Dashboard} />
           <Route path="/create-link" component={CreateLink} />
           <Route path="/my-links" component={MyLinks} />
           <Route path="/analytics" component={Analytics} />
@@ -99,10 +116,16 @@ function App() {
           borderRadius: '0.5rem',
         },
         elements: {
+          rootBox: {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
           card: {
             backgroundColor: '#1f2937',
             borderColor: '#374151',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            margin: '0 auto',
           },
           headerTitle: {
             color: '#ffffff',
