@@ -78,12 +78,12 @@ export default function LandingPage() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-20">
             <div className="text-center">
-              <div className="text-4xl font-bold text-white">10M+</div>
-              <div className="text-gray-400 mt-1">קליקים במעקב</div>
+            <div className="text-4xl font-bold text-white">1,000+</div>
+            <div className="text-gray-400 mt-1">קליקים במעקב</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-white">50K+</div>
-              <div className="text-gray-400 mt-1">לינקים נוצרו</div>
+            <div className="text-4xl font-bold text-white">500+</div>
+            <div className="text-gray-400 mt-1">לינקים נוצרו</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-white">99.9%</div>
