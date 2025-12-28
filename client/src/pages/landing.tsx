@@ -1,48 +1,11 @@
-import { SignInButton, SignUpButton } from '@clerk/clerk-react';
-import { Link2, BarChart3, Webhook, Globe, Zap, Shield, QrCode, Smartphone } from 'lucide-react';
+import { Link2, BarChart3, Webhook, Globe, Zap, Shield, QrCode, Smartphone, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useEffect } from 'react';
-
-// #region agent log
-const LOG_ENDPOINT = 'http://127.0.0.1:7243/ingest/58a5141c-77e9-4e25-8e89-e0ca371e4243';
-const log = (location: string, message: string, data: any, hypothesisId?: string) => {
-  fetch(LOG_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      location,
-      message,
-      data,
-      timestamp: Date.now(),
-      sessionId: 'debug-session',
-      runId: 'run1',
-      hypothesisId
-    })
-  }).catch(() => {});
-};
-// #endregion agent log
 
 export default function LandingPage() {
-  // #region agent log
-  useEffect(() => {
-    console.log('[DEBUG] LandingPage: Component mounted, URL:', window.location.href);
-    const root = document.getElementById('root');
-    const clerkElements = document.querySelectorAll('[class*="cl-"], [id*="clerk"], [data-clerk], [class*="clerk"]');
-    console.log('[DEBUG] LandingPage: DOM check - root exists:', !!root, 'Clerk elements found:', clerkElements.length);
-    if (clerkElements.length > 0) {
-      console.log('[DEBUG] LandingPage: Clerk elements detected:', Array.from(clerkElements).map(el => ({
-        tag: el.tagName,
-        classes: el.className,
-        id: el.id
-      })));
-    }
-    log('landing.tsx:25', 'LandingPage component mounted', { 
-      windowLocation: window.location.href,
-      clerkElementsCount: clerkElements.length 
-    }, 'A');
-  }, []);
-  // #endregion agent log
-  
+  const whatsappNumber = "972507877165";
+  const whatsappMessage = encodeURIComponent("היי, אני מעוניין להשתמש ב-Link Automator");
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Hero Section */}
@@ -50,7 +13,7 @@ export default function LandingPage() {
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-400/10 rounded-full blur-3xl animate-pulse" />
         </div>
 
         {/* Navigation */}
@@ -61,22 +24,16 @@ export default function LandingPage() {
             </div>
             <span className="text-2xl font-bold text-white">Link Automator</span>
           </div>
-          <div className="flex items-center gap-4">
-            <SignInButton mode="modal">
-              <Button variant="ghost" className="text-gray-300 hover:text-white">
-                התחברות
-              </Button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <Button className="bg-green-500 hover:bg-green-600 text-black font-semibold">
-                התחל בחינם
-              </Button>
-            </SignUpButton>
-          </div>
+          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+            <Button className="bg-green-500 hover:bg-green-600 text-black font-semibold gap-2">
+              <MessageCircle className="w-4 h-4" />
+              צור קשר
+            </Button>
+          </a>
         </nav>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-32 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-32 text-center" dir="rtl">
           <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-4 py-2 mb-8">
             <Zap className="w-4 h-4 text-green-400" />
             <span className="text-green-400 text-sm font-medium">הדור הבא של קיצור לינקים</span>
@@ -97,15 +54,12 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <SignUpButton mode="modal">
-              <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold text-lg px-8 py-6">
-                התחל בחינם
-                <Zap className="w-5 h-5 mr-2" />
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold text-lg px-8 py-6 gap-2">
+                <MessageCircle className="w-5 h-5" />
+                דבר איתנו בוואטסאפ
               </Button>
-            </SignUpButton>
-            <Button size="lg" variant="outline" className="border-gray-600 text-white hover:bg-gray-800 text-lg px-8 py-6">
-              צפה בדמו
-            </Button>
+            </a>
           </div>
 
           {/* Stats */}
@@ -127,7 +81,7 @@ export default function LandingPage() {
       </header>
 
       {/* Features Section */}
-      <section className="py-24 bg-gray-800/50">
+      <section className="py-24 bg-gray-800/50" dir="rtl">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">הכל שאתה צריך לניהול לינקים</h2>
@@ -211,7 +165,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-24">
+      <section className="py-24" dir="rtl">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">פשוט ב-3 צעדים</h2>
@@ -239,23 +193,24 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-green-600/20 to-emerald-600/20">
+      <section className="py-24 bg-gradient-to-r from-green-600/20 to-emerald-600/20" dir="rtl">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">מוכן להתחיל?</h2>
           <p className="text-xl text-gray-300 mb-8">
-            הצטרף לאלפי משווקים שכבר משתמשים ב-Link Automator
+            צור איתנו קשר בוואטסאפ ונעזור לך להתחיל
           </p>
-          <SignUpButton mode="modal">
-            <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold text-lg px-12 py-6">
-              צור חשבון חינם
+          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+            <Button size="lg" className="bg-green-500 hover:bg-green-600 text-black font-bold text-lg px-12 py-6 gap-2">
+              <MessageCircle className="w-5 h-5" />
+              דבר איתנו עכשיו
             </Button>
-          </SignUpButton>
-          <p className="text-gray-400 mt-4 text-sm">ללא כרטיס אשראי • התחל תוך 30 שניות</p>
+          </a>
+          <p className="text-gray-400 mt-4 text-sm">מענה מהיר • ללא התחייבות</p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-gray-800">
+      <footer className="py-12 border-t border-gray-800" dir="rtl">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-3 mb-4 md:mb-0">
@@ -265,17 +220,27 @@ export default function LandingPage() {
               <span className="text-lg font-bold text-white">Link Automator</span>
             </div>
             <div className="flex items-center gap-6 text-gray-400">
-              <a href="#" className="hover:text-white transition-colors">תנאי שימוש</a>
-              <a href="#" className="hover:text-white transition-colors">פרטיות</a>
-              <a href="#" className="hover:text-white transition-colors">צור קשר</a>
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-2">
+                <MessageCircle className="w-4 h-4" />
+                צור קשר
+              </a>
             </div>
             <div className="text-gray-500 text-sm mt-4 md:mt-0">
-            © Just In Time. כל הזכויות שמורות.
+              © Just In Time. כל הזכויות שמורות.
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Floating WhatsApp Button */}
+      <a 
+        href={whatsappLink} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="fixed bottom-6 left-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all hover:scale-110"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </a>
     </div>
   );
 }
-
